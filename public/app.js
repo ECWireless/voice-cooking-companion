@@ -7,7 +7,7 @@ const sessionInput = document.querySelector("#session-id");
 const queryInput = document.querySelector("#query-text");
 const queryOutput = document.querySelector("#query-output");
 
-const savedToken = localStorage.getItem("voice-cooking-api-token");
+const savedToken = sessionStorage.getItem("voice-cooking-api-token");
 if (savedToken) tokenInput.value = savedToken;
 
 async function loadRecipes() {
@@ -36,8 +36,8 @@ async function loadRecipes() {
 
 async function sendQuery(inputMode) {
   const token = tokenInput.value.trim();
-  if (token) localStorage.setItem("voice-cooking-api-token", token);
-  else localStorage.removeItem("voice-cooking-api-token");
+  if (token) sessionStorage.setItem("voice-cooking-api-token", token);
+  else sessionStorage.removeItem("voice-cooking-api-token");
 
   const body =
     inputMode === "next_step"

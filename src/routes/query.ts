@@ -39,6 +39,12 @@ function summarizeAudioError(error: unknown): string {
   return "Sorry, I couldn't process that audio request.";
 }
 
+function statusCodeFromError(error: unknown, fallback: number): number {
+  if (!error || typeof error !== "object") return fallback;
+  const statusCode = (error as { statusCode?: unknown }).statusCode;
+  return typeof statusCode === "number" && statusCode >= 400 && statusCode < 500 ? statusCode : fallback;
+}
+
 function isSupportedAudioFile(fileName: string, mimeType: string): boolean {
   const normalizedType = mimeType.split(";")[0]?.trim().toLowerCase() || "";
   if (["audio/wav", "audio/mpeg", "audio/webm", "audio/ogg", "audio/mp4", "audio/x-m4a", "audio/aac", "audio/x-aac"].includes(normalizedType)) {
@@ -170,7 +176,7 @@ export async function registerQueryRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(result.ok ? 200 : 400).send(result);
       } catch (error) {
         const sessionId = sessionIdFromFormRequest(request, fields);
-        return reply.status(500).send(baseError(sessionId, summarizeAudioError(error)));
+        return reply.status(statusCodeFromError(error, 500)).send(baseError(sessionId, summarizeAudioError(error)));
       }
     }
   );
