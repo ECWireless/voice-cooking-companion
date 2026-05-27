@@ -1,4 +1,5 @@
 import fastify from "fastify";
+import fastifyMultipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
 import path from "node:path";
 import { config } from "./config.js";
@@ -23,6 +24,13 @@ export async function buildServer() {
           };
         }
       }
+    }
+  });
+
+  await app.register(fastifyMultipart, {
+    limits: {
+      fileSize: config.maxAudioBytes,
+      files: 1
     }
   });
 

@@ -343,12 +343,12 @@ Implementation:
 
 - write MP3s under `generated-audio`
 - serve by filename from `GET /audio/:name`
-- include a script like `npm run prune-audio`
+- include a script like `pnpm run prune-audio`
 - delete files older than `GENERATED_AUDIO_TTL_HOURS`
 
 Container scheduling options:
 
-- run prune as a host cron job calling `docker exec ... npm run prune-audio`
+- run prune as a host cron job calling `docker exec ... pnpm run prune-audio`
 - run prune with a separate scheduled container
 - optionally add an in-process startup prune, but avoid a forever background scheduler in v1 unless needed
 

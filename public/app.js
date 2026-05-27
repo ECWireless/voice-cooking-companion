@@ -2,9 +2,13 @@ const recipeList = document.querySelector("#recipe-list");
 const refreshRecipes = document.querySelector("#refresh-recipes");
 const queryForm = document.querySelector("#query-form");
 const nextStep = document.querySelector("#next-step");
+const tokenInput = document.querySelector("#api-token");
 const sessionInput = document.querySelector("#session-id");
 const queryInput = document.querySelector("#query-text");
 const queryOutput = document.querySelector("#query-output");
+
+const savedToken = sessionStorage.getItem("voice-cooking-api-token");
+if (savedToken) tokenInput.value = savedToken;
 
 async function loadRecipes() {
   recipeList.textContent = "Loading recipes...";
@@ -31,14 +35,21 @@ async function loadRecipes() {
 }
 
 async function sendQuery(inputMode) {
+  const token = tokenInput.value.trim();
+  if (token) sessionStorage.setItem("voice-cooking-api-token", token);
+  else sessionStorage.removeItem("voice-cooking-api-token");
+
   const body =
     inputMode === "next_step"
       ? { inputMode, sessionId: sessionInput.value.trim() || undefined }
       : { inputMode, query: queryInput.value, sessionId: sessionInput.value.trim() || undefined };
 
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["x-api-token"] = token;
+
   const response = await fetch("/query", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body)
   });
   const data = await response.json();
