@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Voice Cooking Companion</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Voice Cooking Companion Kit</p>
+        <h1>Recipes and voice flows for countertop cooking hardware.</h1>
+        <p class="lede">
+          This first server slice includes recipe storage, session state, and the text query API.
+        </p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>Saved Recipes</h2>
+          <button id="refresh-recipes" type="button">Refresh</button>
+        </div>
+        <div id="recipe-list" class="recipe-list" aria-live="polite">Loading recipes...</div>
+      </section>
+
+      <section class="panel">
+        <h2>Query Tester</h2>
+        <form id="query-form" class="query-form">
+          <label>
+            Session ID
+            <input id="session-id" name="sessionId" placeholder="Leave blank to create one" />
+          </label>
+          <label>
+            Query
+            <input id="query-text" name="query" value="How do I make lemon garlic pasta?" />
+          </label>
+          <div class="actions">
+            <button type="submit">Ask</button>
+            <button id="next-step" type="button">Next Step</button>
+          </div>
+        </form>
+        <pre id="query-output" class="output">No query yet.</pre>
+      </section>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
