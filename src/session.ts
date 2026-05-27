@@ -21,3 +21,17 @@ export function sessionIdFromJsonRequest(request: FastifyRequest, body: Record<s
 
   return fallbackSessionId();
 }
+
+export function sessionIdFromFormRequest(request: FastifyRequest, fields: Record<string, unknown>): string {
+  const fromBody = fields.sessionId;
+  if (typeof fromBody === "string" && fromBody.trim()) return fromBody.trim();
+
+  const nestedSessionId = fields["session.id"];
+  if (typeof nestedSessionId === "string" && nestedSessionId.trim()) return nestedSessionId.trim();
+
+  const fromHeader = request.headers["x-session-id"];
+  const headerValue = Array.isArray(fromHeader) ? fromHeader[0] : fromHeader;
+  if (headerValue?.trim()) return headerValue.trim();
+
+  return fallbackSessionId();
+}

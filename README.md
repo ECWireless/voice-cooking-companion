@@ -49,6 +49,7 @@ Useful checks:
 ```bash
 pnpm run check
 pnpm run build
+pnpm run prune-audio
 ```
 
 ## Configuration

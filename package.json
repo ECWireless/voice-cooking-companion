@@ -8,9 +8,11 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/src/server.js",
+    "prune-audio": "tsx scripts/prune-generated-audio.ts",
     "check": "tsc --noEmit"
   },
   "dependencies": {
+    "@fastify/multipart": "^10.0.0",
     "@fastify/static": "^8.0.4",
     "better-sqlite3": "^11.8.1",
     "dotenv": "^16.4.7",
