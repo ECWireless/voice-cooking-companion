@@ -12,7 +12,7 @@
         <p class="eyebrow">Voice Cooking Companion Kit</p>
         <h1>Recipes and voice flows for countertop cooking hardware.</h1>
         <p class="lede">
-          This first server slice includes recipe storage, session state, and the text query API.
+          Browse recipes, import markdown, and test the cooking query API.
         </p>
       </section>
 
@@ -22,15 +22,41 @@
           <button id="refresh-recipes" type="button">Refresh</button>
         </div>
         <div id="recipe-list" class="recipe-list" aria-live="polite">Loading recipes...</div>
+        <article id="recipe-detail" class="detail-panel" hidden></article>
+      </section>
+
+      <section class="panel">
+        <h2>Protected Actions</h2>
+        <form class="query-form">
+          <label>
+            API token
+            <input id="api-token" name="apiToken" type="password" autocomplete="off" placeholder="Required when API_TOKEN is configured" />
+          </label>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Import Recipe Markdown</h2>
+        <form id="import-form" class="query-form">
+          <label>
+            Markdown file
+            <input id="recipe-file" name="file" type="file" accept=".md,.markdown,text/markdown,text/plain" />
+          </label>
+          <label>
+            Or paste markdown
+            <textarea id="recipe-markdown" name="markdown" rows="10" placeholder="# Recipe Title&#10;&#10;## Ingredients&#10;- 1 cup rice&#10;&#10;## Instructions&#10;1. Cook until tender."></textarea>
+          </label>
+          <div class="actions">
+            <button type="submit">Import</button>
+            <button id="confirm-update" type="button" hidden>Update Existing</button>
+          </div>
+        </form>
+        <pre id="import-output" class="output">No import yet.</pre>
       </section>
 
       <section class="panel">
         <h2>Query Tester</h2>
         <form id="query-form" class="query-form">
-          <label>
-            API token
-            <input id="api-token" name="apiToken" type="password" autocomplete="off" placeholder="Required when API_TOKEN is configured" />
-          </label>
           <label>
             Session ID
             <input id="session-id" name="sessionId" placeholder="Leave blank to create one" />

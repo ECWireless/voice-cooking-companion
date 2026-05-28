@@ -1,0 +1,15 @@
+services:
+  voice-cooking-companion:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATA_DIR: /app/data
+      GENERATED_AUDIO_DIR: /app/generated-audio
+    volumes:
+      - ./data:/app/data
+      - ./generated-audio:/app/generated-audio

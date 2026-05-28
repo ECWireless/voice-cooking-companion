@@ -118,6 +118,11 @@ export function getRecipe(id: number): Recipe | null {
   return row ? mapRecipe(row) : null;
 }
 
+export function findRecipeByTitle(title: string): Recipe | null {
+  const row = db.prepare("SELECT * FROM recipes WHERE lower(title) = lower(?) LIMIT 1").get(title.trim()) as RecipeRow | undefined;
+  return row ? mapRecipe(row) : null;
+}
+
 export function createRecipe(input: RecipeInput): Recipe {
   const title = input.title.trim();
   if (!title) throw new Error("Recipe title is required.");
