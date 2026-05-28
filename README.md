@@ -33,6 +33,24 @@ Generated audio URLs are expected to be temporary and relative by default, for e
 
 The server is intended to run in a container on local hardware or a remote hosting service. Runtime data should be mounted outside the image so recipes, sessions, and temporary generated audio survive container restarts.
 
+With Docker:
+
+```bash
+docker build -t voice-cooking-companion .
+docker run --env-file .env -p 3000:3000 -v "$PWD/data:/app/data" -v "$PWD/generated-audio:/app/generated-audio" voice-cooking-companion
+```
+
+Or with Compose:
+
+```bash
+docker compose up --build
+```
+
+Mount these paths for persistent runtime data:
+
+- `/app/data`
+- `/app/generated-audio`
+
 ## Development
 
 ```bash
@@ -57,3 +75,29 @@ pnpm run prune-audio
 All environment variables are optional for the text-only server flow. Voice features and LLM-assisted helpers require `OPENAI_API_KEY`.
 
 If `API_TOKEN` is set, protected endpoints require either `?token=<API_TOKEN>` or an `x-api-token` header.
+
+Recipe markdown uploads are protected when `API_TOKEN` is configured. The root web UI accepts the token in its protected-action controls and sends it as `x-api-token`.
+
+## Recipe Markdown
+
+Recipe uploads accept a markdown file or pasted markdown with this shape:
+
+```markdown
+# Lemon Garlic Pasta
+
+A quick pasta for weeknight cooking.
+
+## Ingredients
+- 8 oz pasta
+- 2 cloves garlic, minced
+
+## Instructions
+1. Boil the pasta until al dente.
+2. Saute the garlic, then toss with pasta.
+
+## Tags
+- pasta
+- quick
+```
+
+If a recipe with the same title already exists, the import endpoint returns a duplicate response and the UI asks before updating the existing recipe.

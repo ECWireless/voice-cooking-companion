@@ -1,0 +1,8 @@
+node_modules
+dist
+data
+generated-audio
+.env
+.git
+.DS_Store
+*.log
