@@ -7,6 +7,10 @@ export type ParsedRecipeMarkdown = {
 };
 
 type SectionName = "description" | "ingredients" | "instructions" | "tags" | "notes";
+type Heading = {
+  level: number;
+  text: string;
+};
 
 const sectionAliases: Record<string, SectionName> = {
   ingredients: "ingredients",
@@ -30,9 +34,10 @@ function cleanListItem(line: string): string {
     .trim();
 }
 
-function headingText(line: string): string | null {
+function headingInfo(line: string): Heading | null {
   const match = line.match(/^(#{1,3})\s+(.+?)\s*#*\s*$/);
-  return match?.[2]?.trim() || null;
+  const text = match?.[2]?.trim();
+  return match && text ? { level: match[1].length, text } : null;
 }
 
 function normalizeHeading(value: string): SectionName | null {
@@ -63,18 +68,18 @@ export function parseRecipeMarkdown(markdown: string): ParsedRecipeMarkdown {
 
   for (const rawLine of lines) {
     const line = rawLine.trimEnd();
-    const heading = headingText(line);
+    const heading = headingInfo(line);
 
     if (heading) {
-      if (!title) {
-        title = heading;
+      if (!title && heading.level === 1) {
+        title = heading.text;
         currentSection = "description";
         continue;
       }
 
-      const section = normalizeHeading(heading);
+      const section = normalizeHeading(heading.text);
       currentSection = section ?? "notes";
-      if (!section) sections.notes.push(`## ${heading}`);
+      if (!section) sections.notes.push(`${"#".repeat(heading.level)} ${heading.text}`);
       continue;
     }
 

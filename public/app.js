@@ -40,6 +40,7 @@ async function loadRecipes() {
       const item = document.createElement("article");
       item.className = "recipe-item";
       item.tabIndex = 0;
+      item.role = "button";
       const title = document.createElement("h3");
       title.textContent = recipe.title;
       const description = document.createElement("p");
@@ -47,7 +48,10 @@ async function loadRecipes() {
       item.append(title, description);
       item.addEventListener("click", () => showRecipe(recipe));
       item.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") showRecipe(recipe);
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          showRecipe(recipe);
+        }
       });
       return item;
     })

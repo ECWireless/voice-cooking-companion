@@ -71,6 +71,15 @@ function stringList(value: unknown): string[] {
   return Array.isArray(value) ? value.map((item) => String(item).trim()).filter(Boolean) : [];
 }
 
+function parseRecipeJson(content: string): Record<string, unknown> {
+  try {
+    return JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    const snippet = content.replace(/\s+/g, " ").trim().slice(0, 160);
+    throw new Error(`Recipe coercion returned invalid JSON${snippet ? `: ${snippet}` : "."}`);
+  }
+}
+
 export async function coerceRecipeMarkdown(markdown: string): Promise<RecipeInput> {
   const apiKey = requireOpenAIKey();
 
@@ -104,7 +113,7 @@ export async function coerceRecipeMarkdown(markdown: string): Promise<RecipeInpu
   const content = data.choices?.[0]?.message?.content;
   if (!content) throw new Error("Recipe coercion returned no content.");
 
-  const parsed = JSON.parse(content) as Record<string, unknown>;
+  const parsed = parseRecipeJson(content);
   return {
     title: typeof parsed.title === "string" ? parsed.title.trim() : "",
     description: typeof parsed.description === "string" ? parsed.description.trim() : "",

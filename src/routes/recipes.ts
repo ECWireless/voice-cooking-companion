@@ -19,6 +19,10 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown error.";
 }
 
+function uniqueWarnings(warnings: string[]): string[] {
+  return [...new Set(warnings)];
+}
+
 async function markdownFromRequest(request: FastifyRequest): Promise<{
   markdown: string;
   updateExisting: boolean;
@@ -69,7 +73,7 @@ async function parseOrCoerce(markdown: string): Promise<{
     const validation = validateRecipeInput(coercedRecipe);
     return {
       recipe: coercedRecipe,
-      warnings: [...validation.warnings, "Recipe format was normalized with LLM assistance."],
+      warnings: uniqueWarnings([...local.warnings, ...validation.warnings, "Recipe format was normalized with LLM assistance."]),
       errors: validation.errors,
       usedLlm: true
     };
