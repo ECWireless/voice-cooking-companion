@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 import { config } from "./config.js";
-import type { Recipe, RecipeInput, VoiceSessionState } from "./types.js";
+import type { QueryEvent, QueryEventInput, Recipe, RecipeInput, VoiceSessionState } from "./types.js";
 
 fs.mkdirSync(config.dataDir, { recursive: true });
 
@@ -32,6 +32,25 @@ db.exec(`
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(active_recipe_id) REFERENCES recipes(id) ON DELETE SET NULL
   );
+
+  CREATE TABLE IF NOT EXISTS query_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id TEXT NOT NULL,
+    route TEXT NOT NULL,
+    mode TEXT NOT NULL,
+    stage TEXT NOT NULL,
+    outcome TEXT NOT NULL,
+    status_code INTEGER NOT NULL,
+    session_id TEXT NOT NULL,
+    intent TEXT,
+    audio_bytes INTEGER,
+    audio_mime_type TEXT,
+    audio_file_name TEXT,
+    transcript_snippet TEXT NOT NULL DEFAULT '',
+    error_message TEXT,
+    duration_ms INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 type RecipeRow = {
@@ -53,6 +72,25 @@ type VoiceSessionRow = {
   phase: string;
   step_index: number;
   pending_prompt: string | null;
+};
+
+type QueryEventRow = {
+  id: number;
+  request_id: string;
+  route: "/query" | "/query-audio";
+  mode: QueryEvent["mode"];
+  stage: QueryEvent["stage"];
+  outcome: QueryEvent["outcome"];
+  status_code: number;
+  session_id: string;
+  intent: QueryEvent["intent"] | null;
+  audio_bytes: number | null;
+  audio_mime_type: string | null;
+  audio_file_name: string | null;
+  transcript_snippet: string;
+  error_message: string | null;
+  duration_ms: number;
+  created_at: string;
 };
 
 function parseStringList(value: string): string[] {
@@ -92,6 +130,33 @@ function mapSession(row?: VoiceSessionRow): VoiceSessionState {
       row?.pending_prompt === "ingredients_or_first_step" || row?.pending_prompt === "ingredients_or_repeat"
         ? row.pending_prompt
         : null
+  };
+}
+
+function transcriptSnippet(transcript?: string): string {
+  const limit = Math.max(0, config.queryEventTranscriptChars);
+  if (!transcript || limit <= 0) return "";
+  return transcript.replace(/\s+/g, " ").trim().slice(0, limit);
+}
+
+function mapQueryEvent(row: QueryEventRow): QueryEvent {
+  return {
+    id: row.id,
+    requestId: row.request_id,
+    route: row.route,
+    mode: row.mode,
+    stage: row.stage,
+    outcome: row.outcome,
+    statusCode: row.status_code,
+    sessionId: row.session_id,
+    intent: row.intent ?? undefined,
+    audioBytes: row.audio_bytes ?? undefined,
+    audioMimeType: row.audio_mime_type ?? undefined,
+    audioFileName: row.audio_file_name ?? undefined,
+    transcriptSnippet: row.transcript_snippet,
+    errorMessage: row.error_message ?? undefined,
+    durationMs: row.duration_ms,
+    createdAt: row.created_at
   };
 }
 
@@ -195,6 +260,40 @@ export function setVoiceSession(sessionId: string, state: VoiceSessionState): Vo
     pendingPrompt: state.pendingPrompt
   });
   return getVoiceSession(sessionId);
+}
+
+export function createQueryEvent(input: QueryEventInput): void {
+  if (!config.enableQueryEventLog) return;
+
+  db.prepare(
+    `INSERT INTO query_events (
+       request_id, route, mode, stage, outcome, status_code, session_id, intent,
+       audio_bytes, audio_mime_type, audio_file_name, transcript_snippet,
+       error_message, duration_ms
+     )
+     VALUES (
+       @requestId, @route, @mode, @stage, @outcome, @statusCode, @sessionId, @intent,
+       @audioBytes, @audioMimeType, @audioFileName, @transcriptSnippet,
+       @errorMessage, @durationMs
+     )`
+  ).run({
+    ...input,
+    intent: input.intent ?? null,
+    audioBytes: input.audioBytes ?? null,
+    audioMimeType: input.audioMimeType ?? null,
+    audioFileName: input.audioFileName ?? null,
+    transcriptSnippet: transcriptSnippet(input.transcript),
+    errorMessage: input.errorMessage?.slice(0, 300) ?? null,
+    durationMs: Math.max(0, Math.round(input.durationMs))
+  });
+}
+
+export function listQueryEvents(limit = config.queryEventLimit): QueryEvent[] {
+  const safeLimit = Math.min(Math.max(1, Math.floor(limit)), 500);
+  const rows = db
+    .prepare("SELECT * FROM query_events ORDER BY id DESC LIMIT ?")
+    .all(safeLimit) as QueryEventRow[];
+  return rows.map(mapQueryEvent);
 }
 
 export function seedInitialRecipe(): void {

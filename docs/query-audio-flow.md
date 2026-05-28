@@ -20,13 +20,16 @@ Expected request:
 Flow:
 
 1. Token guard runs when configured.
-2. The server validates audio type and size.
-3. OpenAI speech-to-text produces a transcript.
-4. The transcript is sent to the same deterministic query service used by `/query`.
-5. The query service updates the narrow cooking session state.
-6. OpenAI text-to-speech generates an MP3 for `answerText`.
-7. The MP3 is stored under `generated-audio`.
-8. The response includes a temporary relative `audio.url`.
+2. The server collects form fields and the `audio` upload.
+3. The server validates audio type and size.
+4. OpenAI speech-to-text produces a transcript.
+5. The transcript is sent to the same deterministic query service used by `/query`.
+6. The query service updates the narrow cooking session state.
+7. OpenAI text-to-speech generates an MP3 for `answerText`.
+8. The MP3 is stored under `generated-audio`.
+9. The response includes a temporary relative `audio.url`.
+
+Each request records a privacy-aware query event with route, mode, stage, outcome, status code, session ID, audio metadata, duration, and a short transcript snippet when configured. Uploaded audio is never stored in the event log.
 
 ## JSON Next Step
 
@@ -92,3 +95,19 @@ pnpm run prune-audio
 ```
 
 Files older than `GENERATED_AUDIO_TTL_HOURS` are deleted from `GENERATED_AUDIO_DIR`.
+
+## Diagnostics
+
+Recent query events are stored in SQLite and can be fetched with:
+
+```bash
+curl -H "x-api-token: $API_TOKEN" "http://localhost:3000/api/query-events?limit=25"
+```
+
+If `API_TOKEN` is configured, this endpoint is protected. Events include only audio metadata, request stage/outcome, status, duration, session ID, intent, and optional short transcript snippets.
+
+Configuration:
+
+- `ENABLE_QUERY_EVENT_LOG`: set to `false` or `0` to disable SQLite query events.
+- `QUERY_EVENT_TRANSCRIPT_CHARS`: maximum transcript snippet length; set to `0` to disable transcript snippets.
+- `QUERY_EVENT_LIMIT`: default number of events returned by `/api/query-events`.

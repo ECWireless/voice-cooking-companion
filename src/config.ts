@@ -31,5 +31,8 @@ export const config = {
   generatedAudioTtlHours: numberFromEnv("GENERATED_AUDIO_TTL_HOURS", 24),
   maxAudioBytes: numberFromEnv("MAX_AUDIO_BYTES", 8 * 1024 * 1024),
   enableRecipeLlmCoercion: boolFromEnv("ENABLE_RECIPE_LLM_COERCION", Boolean(openaiApiKey)),
+  enableQueryEventLog: boolFromEnv("ENABLE_QUERY_EVENT_LOG", true),
+  queryEventTranscriptChars: numberFromEnv("QUERY_EVENT_TRANSCRIPT_CHARS", 120),
+  queryEventLimit: numberFromEnv("QUERY_EVENT_LIMIT", 100),
   debugQuery: process.env.DEBUG_QUERY === "1"
 };

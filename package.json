@@ -9,6 +9,7 @@
     "build": "tsc",
     "start": "node dist/src/server.js",
     "prune-audio": "tsx scripts/prune-generated-audio.ts",
+    "check:flows": "tsx scripts/check-query-flows.ts",
     "check": "tsc --noEmit"
   },
   "dependencies": {
