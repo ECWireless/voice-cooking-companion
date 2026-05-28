@@ -66,6 +66,7 @@ Useful checks:
 
 ```bash
 pnpm run check
+pnpm run check:flows
 pnpm run build
 pnpm run prune-audio
 ```
@@ -77,6 +78,8 @@ All environment variables are optional for the text-only server flow. Voice feat
 If `API_TOKEN` is set, protected endpoints require either `?token=<API_TOKEN>` or an `x-api-token` header.
 
 Recipe markdown uploads are protected when `API_TOKEN` is configured. The root web UI accepts the token in its protected-action controls and sends it as `x-api-token`.
+
+Query and audio-query diagnostics are logged to SQLite by default without storing uploaded audio. Set `QUERY_EVENT_TRANSCRIPT_CHARS=0` to disable transcript snippets, or `ENABLE_QUERY_EVENT_LOG=false` to disable the event table entirely. Protected recent events are available at `GET /api/query-events`.
 
 ## Recipe Markdown
 

@@ -51,6 +51,39 @@ export type QueryResult = {
   session: PublicSession;
 };
 
+export type QueryEventOutcome = "ok" | "error";
+export type QueryEventMode = "text" | "audio" | "audio_next_step";
+export type QueryEventStage =
+  | "request"
+  | "validate"
+  | "transcribe"
+  | "query"
+  | "synthesize"
+  | "response";
+
+export type QueryEventInput = {
+  requestId: string;
+  route: "/query" | "/query-audio";
+  mode: QueryEventMode;
+  stage: QueryEventStage;
+  outcome: QueryEventOutcome;
+  statusCode: number;
+  sessionId: string;
+  intent?: QueryIntent;
+  audioBytes?: number;
+  audioMimeType?: string;
+  audioFileName?: string;
+  transcript?: string;
+  errorMessage?: string;
+  durationMs: number;
+};
+
+export type QueryEvent = Omit<QueryEventInput, "transcript"> & {
+  id: number;
+  transcriptSnippet: string;
+  createdAt: string;
+};
+
 export type ParsedRecipeMarkdown = {
   recipe: RecipeInput;
   warnings: string[];

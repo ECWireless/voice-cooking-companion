@@ -6,8 +6,7 @@ This repo is a voice cooking companion kit: server, static recipe UI, and ESP32-
 
 - Review and brainstorm with the user before starting each planned PR group.
 - Keep changes scoped to the approved PR group.
-- Do not continue implementation from `IMPLEMENTATION_PLAN.md` without explicit approval for that phase.
-- Delete `IMPLEMENTATION_PLAN.md` at the end of PR 4.
+- For future work, confirm scope with the user before making broad architecture or product-direction changes.
 
 ## Security and Privacy
 
